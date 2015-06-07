@@ -173,6 +173,13 @@ execute "#{splunk_cmd} enable boot-start --accept-license --answer-yes" do
   end
 end
 
+# ftr = first time run file created by a splunk install
+execute "accept_license" do
+	command "#{splunk_cmd} enable boot-start --accept-license --answer-yes"
+  action :run
+  only_if { File.exists?("#{splunk_dir}/ftr") }
+end
+
 splunk_password = node['splunk']['auth'].split(':')[1]
 execute "Changing Admin Password" do
   command "#{splunk_cmd} edit user admin -password #{splunk_password} -roles admin -auth admin:changeme && echo true > /opt/splunk_setup_passwd"
