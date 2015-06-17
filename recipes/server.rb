@@ -173,6 +173,12 @@ execute "#{splunk_cmd} enable boot-start --accept-license --answer-yes" do
   end
 end
 
+if node.run_list.roles.include?(node['splunk']['server_role'])
+  splunk_dir = node['splunk']['server_home']
+else
+  splunk_dir = node['splunk']['forwarder_home']
+end
+
 # ftr = first time run file created by a splunk install
 execute "accept_license" do
 	command "#{splunk_cmd} enable boot-start --accept-license --answer-yes"
