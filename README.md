@@ -6,6 +6,7 @@ This Chef cookbook provides recipes for installing Splunk Server, Splunk Forward
 Changes
 =======
 
+* v0.1.1 - Added Test Kitchen integration, basic serverspecs, and updated default Splunk version.
 * v0.1.0 - Added index configuration.  See attributes/indexes.rb
 * v0.0.9 -
     - Added Distributed Searching.  This requires an Enterprise License with the CanBeRemoteMaster / DistSearch Feature Flags.  See the Distributed Search section for more details.
@@ -19,7 +20,7 @@ Changes
     - If you ever completely remove splunk and then install splunk, you will have to destroy two attributes on the nodes because the splunk.secret will be different.  We can solve this in the future releases.  The attributes are:
       node['splunk']['inputsSSLPass']
       node['splunk']['outputsSSLPass']
-  - Removed default['splunk']['indexer_name'] in attributes/default.rb. 
+  - Removed default['splunk']['indexer_name'] in attributes/default.rb.
   - Got rid of the annoying output on the multiple "moving inputs file" for the forwarders.  It should now only do it once.
 * v0.0.4 - Added a splunk app: Pulse for AWS Cloudwatch.  This app will pull back metrics from AWS Cloudwatch and provides sample dashboards to display the information.  Read the SETUP.txt located in the root directory of the app file for installation requirements.
 * v0.0.3 - Changing version of Splunk to 4.3
@@ -82,7 +83,7 @@ Installs the *nix App
 splunk-sos-app
 --------------
 
-Installs the Splunk on Splunk App and the required dependency app of Sideview Utils.  
+Installs the Splunk on Splunk App and the required dependency app of Sideview Utils.
 - Download Splunk on Splunk from http://splunk-base.splunk.com/apps/29008/sos-splunk-on-splunk and place it under `files/default/apps/sos.tar.gz`
 - Download Sideview Utils from http://splunk-base.splunk.com/apps/36405/sideview-utils and place it under `files/default/apps/sideview_utils.tar.gz`
 
@@ -123,7 +124,7 @@ To cause the Web interface, SplunkWeb, to be started, assign to the node the rol
 
 This will tell the splunk server to use the dynamic config files located in `templates/default/server/SERVER_CONFIG_FOLDER`:
 
-```ruby  
+```ruby
 override_attributes(
   "splunk" => {
     "server_config_folder" => "prod"
