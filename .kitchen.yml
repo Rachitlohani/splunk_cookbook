@@ -25,4 +25,5 @@ suites:
     run_list:
       - recipe[splunk::forwarder]
     attributes:
-
+      splunk:
+        install_type: 'forwarder'

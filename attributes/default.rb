@@ -13,6 +13,7 @@ default['splunk']['system_user']['uid'] = 396
 
 #directories  (Only set if deviating from default splunk install)
 default['splunk']['home']                      = nil
+default['splunk']['server_home']               = '/opt/splunk'
 default['splunk']['db_directory']              = nil
 
 #web config

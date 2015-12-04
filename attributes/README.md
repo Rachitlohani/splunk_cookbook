@@ -3,27 +3,27 @@ Attributes
 
 apps
 ----
-* `node['splunk']['unix_app_file']` - The name of the unix app file.  
+* `node['splunk']['unix_app_file']` - The name of the unix app file.
 	- File location: files/default/apps
 * `node['splunk']['unix_app_version']` - The version number associated with this file.
 
-* `node['splunk']['pdf_server_file']` - The name of the pdf server app file. 
+* `node['splunk']['pdf_server_file']` - The name of the pdf server app file.
 	- File location: files/default/apps
 * `node['splunk']['pdf_server_version']` - The version number associated with this file.
 
-* `node['splunk']['deployment_mon_file']` - The name of the deployment monitor app file.  
+* `node['splunk']['deployment_mon_file']` - The name of the deployment monitor app file.
 	- File location: files/default/apps
 * `node['splunk']['deployment_mon_version']` - The version number associated with this file.
 
-* `node['splunk']['splunk_sos_file]` - The name of the Splunk on Splunk app file. 
+* `node['splunk']['splunk_sos_file]` - The name of the Splunk on Splunk app file.
 	- File location: files/default/apps
 * `node['splunk']['splunk_sos_version]` - The version number associated with this file.
 
-* `node['splunk']['sideview_utils_file]` - The name of the sideview utils app file.  
+* `node['splunk']['sideview_utils_file]` - The name of the sideview utils app file.
 	- File location: files/default/apps
 * `node['splunk']['sideview_utils_version']` - The version number associated with this file.
 
-* `node['splunk']['pulse_app_file']` - The name of the Pulse for AWS Cloudwatch app file.  
+* `node['splunk']['pulse_app_file']` - The name of the Pulse for AWS Cloudwatch app file.
 	- File location: files/default/apps
 * `node['splunk']['pulse_app_version']` - The version number associated with this file.
 * `node['splunk']['boto_remote_location]` - The base URL for downloading the Python boto library
@@ -34,10 +34,21 @@ apps
 default
 -------
 * `node['splunk']['cookbook_name']` - The name of the directory in which the cookbook runs.
-
-* `node['splunk']['server_home']` - The directory in which to install the Splunk Server
+* `node['splunk']['install_type']` - Basic install type.  (`server` or `forwarder`)
+* `node['splunk']['run_as_root']` - Should splunk run as root user
+* `node['splunk']['system_user']` - System user Splunk should run as
+	- `node['splunk']'system_user']['username']`
+	- `node['splunk']['system_user']['comment']`
+	- `node['splunk']['system_user']['shell']`
+	- `node['splunk']['system_user']['uid']`
+	- NOTE:  User home directory will be set to $SPLUNK_HOME
+* `node['splunk']['home']` - The directory in which to install the Splunk Server
+	- if nil, uses default splunk install location.
+	- Note, this attribute, and the previous `server_home`/`forwarder_home` do not actually alter the Splunk install directory.  Changing them likely just breaks things.
+	- Replaces `node['splunk']['server_home']` and `node['splunk']['forwarder_home']`
+* `node['splunk']['server_home']` - DEPRECATED - The directory in which to install the Splunk Server
 * `node['splunk']['db_directory']` - The directory to use for the Splunk Server Database.
-	- File location: templates/server/splunk-launch.conf.erb
+	- If nil, uses splunk default location (`$SPLUNK_HOME/var/lib/splunk`)
 
 * `node['splunk']['web_server_port']` - The port number to assign the web server (httpport).
 	- File location: templates/server/web.conf.erb
@@ -51,7 +62,7 @@ default
 
 * `node['splunk']['use_ssl']` - Toggles between http or https (enableSplunkWebSSL).
 	- File location: templates/server/web.conf.erb
-* `node['splunk']['ssl_crt']` - The cert file name if you are using the SSL web frontend. 
+* `node['splunk']['ssl_crt']` - The cert file name if you are using the SSL web frontend.
 	- File location: files/default/ssl
 * `node['splunk']['ssl_key']` - The private key file if you are using the SSL web frontend.
 	- File location: files/default/ssl
@@ -64,7 +75,7 @@ default
 	- Folder Location: templates/server/#{node['splunk']['server_config_folder']}
 * `node['splunk']['static_server_configs']` - An array of static server configs that *are not* specific to an environment (Dev, QA, PL, Prod, etc).  These are the primary names without the .conf.erb suffix.
 	- File Locations: templates/server
-* `node['splunk']['dynamic_server_configs']` - An array of dynamic server configs that *are* specific to an environment.  These are the primary names without the .conf.erb suffix. 
+* `node['splunk']['dynamic_server_configs']` - An array of dynamic server configs that *are* specific to an environment.  These are the primary names without the .conf.erb suffix.
 	- File Location: templates/server/#{node['splunk']['server_config_folder']}
 
 * `node['splunk']['receiver_port']` - The default port in which to receive data from the forwarders.
@@ -84,13 +95,13 @@ distributed_search
 
 forwarder
 ---------
-* `node['splunk']['forwarder_home']` - The directory in which to install the Splunk Forwarder
+* `node['splunk']['forwarder_home']` - DEPRECATED - The directory in which to install the Splunk Forwarder
 
-* `node['splunk']['forwarder_role']` - The name of the splunk forwarder role.  It is best to override this attribute per role.  This is the inputs file that will be moved over on the forwarding server.  
+* `node['splunk']['forwarder_role']` - The name of the splunk forwarder role.  It is best to override this attribute per role.  This is the inputs file that will be moved over on the forwarding server.
 	- File Location: templates/forwarder/#{node['splunk']['forwarder_config_folder']}/#{node['splunk']['forwarder_role']}.inputs.conf.erb
-* `node['splunk']['forwarder_config_folder']` - The folder which contains the inputs file for the environment.  It is best to override this attribute per chef role. 
+* `node['splunk']['forwarder_config_folder']` - The folder which contains the inputs file for the environment.  It is best to override this attribute per chef role.
 	- Folder Location: templates/forwarder/#{node['splunk']['forwarder_config_folder']}
-* `node['splunk']['limits_thruput']` - The max amount of bandwidth, in KBps, the forwarders will use when sending data.  
+* `node['splunk']['limits_thruput']` - The max amount of bandwidth, in KBps, the forwarders will use when sending data.
 	- File Location: templates/forwarder/limits.conf.erb
 * `node['splunk']['ssl_forwarding']` - true/false to either enable or disable SSL forwarding.
 * `node['splunk']['ssl_forwarding_cacert']` - Name of the CA Cert
@@ -127,13 +138,18 @@ scripted_auth
 
 versions
 --------
-* `node['splunk']['server_root']` - The base URL that splunk uses to download release files for Splunk Server
-* `node['splunk']['server_version']` - The specific version of Splunk Server to download
-* `node['splunk']['server_build]` - The specific build number of Splunk Server to download
+* `node['splunk']['download_root']` - The base URL that splunk uses to download release files for Splunk Server
+* `node['splunk']['version']` - The specific version of Splunk Server to download
+* `node['splunk']['build']` - the specific build number of Splunk to download
+* `node['splunk']['remote_url']` - Use if getting installers from a custom location.
+	- Simply provide full URL to download location
+* `node['splunk']['server_root']` - DEPRECATED - The base URL that splunk uses to download release files for Splunk Server
+* `node['splunk']['server_version']` - DEPRECATED - The specific version of Splunk Server to download
+* `node['splunk']['server_build]` - DEPRECATED - The specific build number of Splunk Server to download
 
-* `node['splunk']['forwarder_root']` - The base URL that splunk uses to download release files for Splunk Forwarder
-* `node['splunk']['forwarder_version']` - The specific version of Splunk Forwarder to download
-* `node['splunk']['forwarder_build]` - The specific build number of Splunk Forwarder to download
+* `node['splunk']['forwarder_root']` - DEPRECATED - The base URL that splunk uses to download release files for Splunk Forwarder
+* `node['splunk']['forwarder_version']` - DEPRECATED - The specific version of Splunk Forwarder to download
+* `node['splunk']['forwarder_build]` - DEPRECATED - The specific build number of Splunk Forwarder to download
 
 
 License and Author

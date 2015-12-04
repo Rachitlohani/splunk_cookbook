@@ -1,9 +1,6 @@
 Chef::Recipe.send(:include, Splunk::Helpers)
 Chef::Resource.send(:include, Splunk::Helpers)
 
-home_dir = splunk_home
-user = splunk_user
-
 template "#{splunk_home}/etc/splunk-launch.conf" do
   source 'server/splunk-launch.conf.erb'
   mode '0640'

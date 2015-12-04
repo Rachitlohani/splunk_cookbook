@@ -20,7 +20,7 @@
 Chef::Recipe.send(:include, Splunk::Helpers)
 
 cache_dir      = Chef::Config[:file_cache_path]
-source         = node['splunk']['remote_url'] || splunk_installer
+source         = node['splunk']['remote_url'] || splunk_download_url
 package_file   = splunk_file(source)
 cached_package = ::File.join(cache_dir, package_file)
 

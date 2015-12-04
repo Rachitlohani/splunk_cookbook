@@ -17,63 +17,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-directory "/opt" do
-  mode "0755"
-  owner "root"
-  group "root"
-end
+Chef::Recipe.send(:include, Splunk::Helpers)
+Chef::Resource.send(:include, Splunk::Helpers)
 
-splunk_cmd = "#{node['splunk']['forwarder_home']}/bin/splunk"
-splunk_package_version = "splunkforwarder-#{node['splunk']['forwarder_version']}-#{node['splunk']['forwarder_build']}"
-
-splunk_file = splunk_package_version +
-  case node['platform']
-  when "centos","redhat","fedora","amazon"
-    if node['kernel']['machine'] == "x86_64"
-      "-linux-2.6-x86_64.rpm"
-    else
-      ".i386.rpm"
-    end
-  when "debian","ubuntu"
-    if node['kernel']['machine'] == "x86_64"
-      "-linux-2.6-amd64.deb"
-    else
-      "-linux-2.6-intel.deb"
-    end
-  end
-
-remote_file "#{Chef::Config['file_cache_path']}/#{splunk_file}" do
-  source "#{node['splunk']['forwarder_root']}/#{node['splunk']['forwarder_version']}/universalforwarder/linux/#{splunk_file}"
-  action :create_if_missing
-end
-
-package splunk_package_version do
-  source "#{Chef::Config['file_cache_path']}/#{splunk_file}"
-  case node['platform']
-  when "centos","redhat","fedora"
-    provider Chef::Provider::Package::Rpm
-  when "debian","ubuntu"
-    provider Chef::Provider::Package::Dpkg
-  end
-end
-
-execute "#{splunk_cmd} enable boot-start --accept-license --answer-yes && echo true > /opt/splunk_license_accepted_#{node['splunk']['forwarder_version']}" do
-  not_if do
-    File.exists?("/opt/splunk_license_accepted_#{node['splunk']['forwarder_version']}")
-  end
-end
-
-splunk_password = node['splunk']['auth'].split(':')[1]
-execute "#{splunk_cmd} edit user admin -password #{splunk_password} -roles admin -auth admin:changeme && echo true > /opt/splunk_setup_passwd" do
-  not_if do
-    File.exists?("/opt/splunk_setup_passwd")
-  end
-end
-
-service "splunk" do
-  action [ :nothing ]
-  supports :status => true, :start => true, :stop => true, :restart => true
-end
+include_recipe 'splunk::system_user'
+include_recipe 'splunk::download_and_install'
+include_recipe 'splunk::ftr'
+include_recipe 'splunk::update_admin_auth'
 
 if Chef::Config[:solo]
   Chef::Log.warn("This recipe uses search. Chef Solo does not support Search")
@@ -89,17 +39,17 @@ else
 end
 
 if node['splunk']['ssl_forwarding'] == true
-  directory "#{node['splunk']['forwarder_home']}/etc/auth/forwarders" do
-    owner "root"
-    group "root"
+  directory "#{splunk_home}/etc/auth/forwarders" do
+    owner splunk_user
+    group splunk_user
     action :create
   end
 
   [node['splunk']['ssl_forwarding_cacert'],node['splunk']['ssl_forwarding_servercert']].each do |cert|
-    cookbook_file "#{node['splunk']['forwarder_home']}/etc/auth/forwarders/#{cert}" do
+    cookbook_file "#{splunk_home}/etc/auth/forwarders/#{cert}" do
       source "ssl/forwarders/#{cert}"
-      owner "root"
-      group "root"
+      owner splunk_user
+      group splunk_user
       mode "0755"
       notifies :restart, "service[splunk]"
     end
@@ -110,53 +60,41 @@ if node['splunk']['ssl_forwarding'] == true
   # Splunk encrypted passwords always start with $1$
   ruby_block "Saving Encrypted Password (outputs.conf)" do
     block do
-      outputsPass = `grep -m 1 "sslPassword = " #{node['splunk']['forwarder_home']}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
+      outputsPass = `grep -m 1 "sslPassword = " #{splunk_home}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
       if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
         node.default['splunk']['outputsSSLPass'] = outputsPass
       end
     end
     only_if do
-      File.exists?("#{node['splunk']['forwarder_home']}/etc/system/local/outputs.conf")
+      File.exists?("#{splunk_home}/etc/system/local/outputs.conf")
     end
   end
 end
 
-template "#{node['splunk']['forwarder_home']}/etc/system/local/outputs.conf" do
-	source "forwarder/outputs.conf.erb"
-	owner "root"
-	group "root"
-	mode "0644"
-	variables :splunk_servers => splunk_servers
-	notifies :restart, "service[splunk]"
+template "#{splunk_home}/etc/system/local/outputs.conf" do
+  source "forwarder/outputs.conf.erb"
+  owner splunk_user
+  group splunk_user
+  mode "0644"
+  variables :splunk_servers => splunk_servers
+  notifies :restart, "service[splunk]"
 end
 
 ["limits"].each do |cfg|
-  template "#{node['splunk']['forwarder_home']}/etc/system/local/#{cfg}.conf" do
-   	source "forwarder/#{cfg}.conf.erb"
-   	owner "root"
-   	group "root"
-   	mode "0640"
+  template "#{splunk_home}/etc/system/local/#{cfg}.conf" do
+    source "forwarder/#{cfg}.conf.erb"
+    owner splunk_user
+    group splunk_user
+    mode "0640"
     notifies :restart, "service[splunk]"
    end
 end
 
 template "Moving inputs file for role: #{node['splunk']['forwarder_role']}" do
-  path "#{node['splunk']['forwarder_home']}/etc/system/local/inputs.conf"
+  path "#{splunk_home}/etc/system/local/inputs.conf"
   source "forwarder/#{node['splunk']['forwarder_config_folder']}/#{node['splunk']['forwarder_role']}.inputs.conf.erb"
-  owner "root"
-  group "root"
+  owner splunk_user
+  group splunk_user
   mode "0640"
   notifies :restart, "service[splunk]"
-end
-
-
-template "/etc/init.d/splunk" do
-  source "forwarder/splunk.erb"
-  mode "0755"
-  owner "root"
-  group "root"
-end
-
-service "splunk" do
-   action :start
 end
