@@ -1,9 +1,19 @@
 # Name of the cookbook (referenced in forwarder.rb)
 default['splunk']['cookbook_name']             = "splunk"
 
-#directories
-default['splunk']['server_home']               = "/opt/splunk"
-default['splunk']['db_directory']              = "/volr/splunk"
+# install type (server/forwarder)
+default['splunk']['install_type'] = 'server'
+
+# Run Splunk As
+default['splunk']['run_as_root'] = true
+default['splunk']['system_user']['username'] = 'splunk'
+default['splunk']['system_user']['comment'] = 'Splunk Server'
+default['splunk']['system_user']['shell'] = '/bin/bash'
+default['splunk']['system_user']['uid'] = 396
+
+#directories  (Only set if deviating from default splunk install)
+default['splunk']['home']                      = nil
+default['splunk']['db_directory']              = nil
 
 #web config
 default['splunk']['web_server_port']           = "80" # Change to 443/other if you're doing ssl
@@ -40,5 +50,5 @@ default['splunk']['server_role']               = "splunk-server"
 # Needed for distributed search.  This is assigned to the indexers.
 default['splunk']['indexer_role']              = "splunk-indexer"
 
-# limits.conf 
+# limits.conf
 default['splunk']['max_searches_per_cpu']      = 4
