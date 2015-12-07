@@ -23,10 +23,10 @@ describe 'Splunk Server' do
   end
 
   describe process('splunkd') do
-    its(:user) { should match 'root' }
+    its(:user) { should match 'splunk' }
   end
 
-  describe port(80) do
+  describe port(8080) do
     it { should be_listening }
   end
 
@@ -38,7 +38,7 @@ describe 'Splunk Server' do
     it { should exist }
     it { should be_file }
     its(:content) { should match 'SPLUNK_HOME=/opt/splunk' }
-    its(:content) { should match 'SPLUNK_OS_USER=root' }
+    its(:content) { should match 'SPLUNK_OS_USER=splunk' }
   end
 
   describe file('/opt/splunk/etc/.setup_admin_pwd') do
@@ -56,7 +56,7 @@ describe 'Splunk Server' do
   end
 
   describe file('/opt/splunk/etc/system/local/server.conf') do
-    its(:content) { should match 'serverName = splunk-server.local-splunk' }
+    its(:content) { should match 'serverName = splunk-server-noroot.local-splunk' }
   end
 
   %w(apache_http useragents).each do |dashboard|
