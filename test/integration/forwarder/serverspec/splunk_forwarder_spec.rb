@@ -46,6 +46,10 @@ describe 'Splunk Forwarder' do
     its(:content) { should match 'BUILD=f3e41e4b37b2' }
   end
 
+  describe file('/opt/splunkforwarder/etc/system/local/server.conf') do
+    its(:content) { should match 'serverName = splunk-forwarder.local-splunk' }
+  end
+
   %w(outputs limits).each do |conf_file|
     describe file("/opt/splunkforwarder/etc/system/local/#{conf_file}.conf") do
       it { should exist }

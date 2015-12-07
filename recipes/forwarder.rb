@@ -24,6 +24,7 @@ include_recipe 'splunk::system_user'
 include_recipe 'splunk::download_and_install'
 include_recipe 'splunk::ftr'
 include_recipe 'splunk::update_admin_auth'
+include_recipe 'splunk::set_servername'
 
 if Chef::Config[:solo]
   Chef::Log.warn("This recipe uses search. Chef Solo does not support Search")

@@ -17,23 +17,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-Chef::Recipe.send(:include, Splunk::Helpers)
+Chef::Resource.send(:include, Splunk::Helpers)
 
-cache_dir      = Chef::Config[:file_cache_path]
-source         = node['splunk']['remote_url'] || splunk_download_url
-package_file   = splunk_file(source)
-cached_package = ::File.join(cache_dir, package_file)
-
-remote_file cached_package do
-  source source
-  action :create_if_missing
-end
-
-package 'splunk' do
-  source cached_package
-  version node['splunk']['version']
-  provider case node['platform_family']
-           when 'rhel'   then Chef::Provider::Package::Rpm
-           when 'debian' then Chef::Provider::Package::Dpkg
-           end
+execute 'Set Splunk Servername' do
+  command "#{splunk_home}/bin/splunk set servername #{node['splunk']['hostname']} -auth #{node['splunk']['auth']}"
+  environment 'HOME' => splunk_home
+  sensitive true
+  not_if "#{splunk_home}/bin/splunk show servername -auth #{node['splunk']['auth']} | grep #{node['splunk']['hostname']}", :environment => {'HOME' => splunk_home}
+  notifies :restart, 'service[splunk]', :delayed
 end

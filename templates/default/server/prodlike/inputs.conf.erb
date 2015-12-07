@@ -1,5 +1,5 @@
 [default]
-host = <%= node['ec2'] ? node['ec2']['instance_id'] : node['fqdn'] %>-splunk
+host = <%= node['splunk']['hostname'] %>
 
 [monitor://$SPLUNK_HOME/var/log/splunk]
 

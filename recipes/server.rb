@@ -24,6 +24,7 @@ include_recipe 'splunk::system_user'
 include_recipe 'splunk::download_and_install'
 include_recipe 'splunk::ftr'
 include_recipe 'splunk::update_admin_auth'
+include_recipe 'splunk::set_servername'
 
 splunk_cmd = "#{splunk_home}/bin/splunk"
 
@@ -133,6 +134,7 @@ end
 if dedicated_indexer == true || node['splunk']['distributed_search'] == false
   execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do
     command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
+    environment 'HOME' => splunk_home
     not_if "grep splunktcp:#{node['splunk']['receiver_port']} #{splunk_home}/etc/system/local/inputs.conf"
   end
 end
@@ -223,6 +225,7 @@ if node['splunk']['distributed_search'] == true
   if search_master == false
     execute "Linking license to search master" do
       command "#{splunk_cmd} edit licenser-localslave -master_uri 'https://#{node['splunk']['dedicated_search_master']}:8089' -auth #{node['splunk']['auth']}"
+      environment 'HOME' => splunk_home
       not_if "grep \"master_uri = https://#{node['splunk']['dedicated_search_master']}:8089\" #{splunk_home}/etc/system/local/server.conf"
     end
   end

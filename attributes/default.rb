@@ -4,6 +4,8 @@ default['splunk']['cookbook_name']             = "splunk"
 # install type (server/forwarder)
 default['splunk']['install_type'] = 'server'
 
+default['splunk']['hostname'] = "#{node['ec2'] ? node['ec2']['instance_id'] : node['fqdn']}-splunk"
+
 # Run Splunk As
 default['splunk']['run_as_root'] = true
 default['splunk']['system_user']['username'] = 'splunk'
