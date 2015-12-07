@@ -35,6 +35,7 @@ default
 -------
 * `node['splunk']['cookbook_name']` - The name of the directory in which the cookbook runs.
 * `node['splunk']['install_type']` - Basic install type.  (`server` or `forwarder`)
+* `node['splunk']['hostname']` - How the Splunk server identifies itself in REST calls, and the default hostname for inputs.conf
 * `node['splunk']['run_as_root']` - Should splunk run as root user
 * `node['splunk']['system_user']` - System user Splunk should run as
 	- `node['splunk']'system_user']['username']`

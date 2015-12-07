@@ -15,6 +15,7 @@ Changes
   - Updated server/forwarder recipes to rely on the above, reducing code duplication.
   - Added the ability to run Splunk as a non-root user.  Default is still as root to avoid breaking existing installs.  This default may change in the future to reflect best practices for Splunk deployment.
   - Some attributes are changing / deprecated.  Details in the attributes/README.md
+  - Cookbook now sets splunk 'servername', which affects how the install identifies itself outside of inputs. This corrects discrepancies between the two.  (Uncorrected, this would break attempts to correlate logs with REST responses)
 * v0.1.1 - Added Test Kitchen integration, basic serverspecs, and updated default Splunk version.
 * v0.1.0 - Added index configuration.  See attributes/indexes.rb
 * v0.0.9 -
