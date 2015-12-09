@@ -12,71 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-property :instance_name, String, name_property: true
-property :version, String, required: true
-property :remote_source, String
-property :checksum, String
-property :installed, [TrueClass, FalseClass], default: false
-
+actions :install, :remove
 default_action :install
 
-load_current_value do
-  conf_file = ::File.join(
-    splunk_home,
-    'etc',
-    'apps',
-    instance_name,
-    'default',
-    'app.conf')
-
-  version ''
-  installed ::File.exist? conf_file
-
-  ::File.open(conf_file).each_line do |line|
-    next unless line =~ /^version\s*=/
-    version line.split('=')[1].strip!
-  end if installed
-end
-
-action :install do
-  converge_if_changed :version do
-    cache_dir      = Chef::Config[:file_cache_path]
-    package_file   = "#{instance_name}-#{version}.tgz"
-    cached_package = ::File.join(cache_dir, package_file)
-
-    remote_file cached_package do
-      action :create
-      source remote_source
-      owner splunk_user
-      group splunk_user
-      mode '0644'
-      checksum checksum
-    end
-
-    execute "Install Splunk App #{package_file}" do
-      command "#{splunk_cmd} install app "\
-      "#{cached_package} "\
-      '-update true '\
-      "-auth #{node['splunk']['auth']}"
-      environment 'HOME' => splunk_home
-      user splunk_user
-      group splunk_user
-      sensitive true
-      action :run
-    end
-  end
-end
-
-action :remove do
-  converge_if_changed :installed do
-    execute "Remove Splunk App #{instance_name} #{version}" do
-      command "#{splunk_cmd} remove app "\
-      "#{instance_name} "\
-      "-auth #{node['splunk']['auth']}"
-      environment 'HOME' => splunk_home
-      sensitive true
-      action :run
-    end
-  end
-end
+attribute :name, :name_attribute => true, :kind_of => String
+attribute :version, :kind_of => String
+attribute :remote_file, :kind_of => String
+attribute :checksum, :kind_of => String

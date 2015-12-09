@@ -38,5 +38,14 @@ module Splunk
         end
       prefix + splunk_package + suffix
     end
+
+    def shc_base_path
+      ::File.join(splunk_home, 'etc', 'shcluster', 'apps')
+    end
+
+    def idx_base_path
+      ::File.join(splunk_home, 'etc', 'master-apps')
+    end
+
   end
 end
