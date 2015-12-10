@@ -1,8 +1,4 @@
-#
-# Cookbook Name:: splunk
-# Recipe:: unix-app
-# 
-# Copyright 2011-2012, BBY Solutions, Inc.
+# Copyright 2011-2016, BBY Solutions, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,11 +13,10 @@
 # limitations under the License.
 #
 
-splunk_app_install "Installing #{node['splunk']['unix_app_file']} -- Version: #{node['splunk']['unix_app_version']}" do
-  action                  [:create_if_missing]
-  app_file                node['splunk']['unix_app_file']
-  app_version             node['splunk']['unix_app_version']
-  local_templates_directory "unix-app"
-  local_templates         ["app.conf.erb","inputs.conf.erb"]
-  remove_dir_on_upgrade   "true"
-end
+actions :install, :remove
+default_action :install
+
+attribute :name, :name_attribute => true, :kind_of => String
+attribute :version, :kind_of => String
+attribute :remote_file, :kind_of => String
+attribute :checksum, :kind_of => String

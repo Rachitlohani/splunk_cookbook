@@ -26,8 +26,6 @@ include_recipe 'splunk::ftr'
 include_recipe 'splunk::update_admin_auth'
 include_recipe 'splunk::set_servername'
 
-splunk_cmd = "#{splunk_home}/bin/splunk"
-
 # True for both a Dedicated Search head for Distributed Search and for non-distributed search
 dedicated_search_head = true
 # Only true if we are a dedicated indexer AND are doing a distributed search setup

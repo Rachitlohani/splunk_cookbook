@@ -6,6 +6,12 @@ This Chef cookbook provides recipes for installing Splunk Server, Splunk Forward
 Changes
 =======
 
+* v0.2.1 - App Provider Cleanup
+  - Wrote new providers for installing Splunk Apps.
+    - Separate providers for direct install, and extraction to clustering deployment folders.
+  - Removed app binaries from Cookbook.
+  - Removed recipes/code referencing old app install process.
+  - Old provider remains for compatibility, but is deprecated.
 * v0.2.0 -
   - Start of significant refactoring.
   - Extracted base installation steps into composable recipes.
@@ -72,35 +78,6 @@ forwarder
 
 Installs Splunk Forwarder
 
-deploy-mon-app
---------------
-
-Installs the Deployment Monitor App
-- Download the app from http://splunk-base.splunk.com/apps/22301/splunk-deployment-monitor and place it under `files/default/apps/SplunkDeploymentMonitor.tar.gz`
-
-pdf-server-app
---------------
-
-Installs the PDF Server App
-- Download the app from http://splunk-base.splunk.com/apps/22348/pdf-report-server-install-on-linux-only and place it under `files/default/apps/pdfserver.tar.gz`
-
-unix-app
---------
-
-Installs the *nix App
-- Download the app from http://splunk-base.splunk.com/apps/22314/splunk-for-unix-and-linux and place it under `files/default/apps/unix.tar.gz`
-
-splunk-sos-app
---------------
-
-Installs the Splunk on Splunk App and the required dependency app of Sideview Utils.
-- Download Splunk on Splunk from http://splunk-base.splunk.com/apps/29008/sos-splunk-on-splunk and place it under `files/default/apps/sos.tar.gz`
-- Download Sideview Utils from http://splunk-base.splunk.com/apps/36405/sideview-utils and place it under `files/default/apps/sideview_utils.tar.gz`
-
-pulse-app
----------
-
-Installs the Pulse for AWS Cloudwatch App and the required Python libraries.
 
 Usage
 =====
@@ -151,6 +128,87 @@ recipe[splunk::deploy-mon-app]
 Resources and Providers
 =======================
 
+splunk_app
+----------
+A default provider to install/upgrade/remove Splunk App bundles.
+
+*Actions:*
+* `:install` - Downloads the app bundle from the specified remote location and installs it.  If already installed, it will upgrade if the installed version does not match the specified version.  This is done via Splunk CLI interface, and is non-destructive of any local config files that may be in place.
+* `:remove` - Removes the specified app bundle if installed.
+
+*Attribute Parameters:*
+* `:name` - The name of the app.  This must match what Splunk considers the app name to be, typically it's root folder name.  (Required)
+* `:version` - The version of the app being installed.  This can be verified via `default/app.conf` in the app bundle if unknown.  (Required)
+* `:remote_file` - The remote location of the app bundle file.  (Required)
+* `:checksum` - Checksum of the app bundle file.  See the [remote_file resource](https://docs.chef.io/resource_remote_file.html) for details on `checksum` (Optional)
+
+*Usage:*
+This will install the Splunk Dashboard Examples app, and then notify the Splunk service to restart.  (This assumes 'artifact_repo' is a URL)
+
+```ruby
+splunk_app 'simple_xml_examples' do
+  version '3.0'
+  remote_file "#{artifact_repo}/splunk-6x-dashboard-examples_30.tgz"
+  checksum 'ecf65fbde38befa66f2a88aa3d02903524cbdc57c40e0d439e5e4b3c7580c877'
+  action :install
+  notifies :restart, 'service[splunk]', :delayed
+end
+```
+
+splunk_shc_app
+----------
+A default provider to install/upgrade/remove Splunk App bundles for distribution by a Search Head Cluster Deployer.
+
+*Actions:*
+* `:install` - Downloads the app bundle from the specified remote location extracts it to `$SPLUNK_HOME/etc/shcluster/apps`.  If already installed, it will upgrade if the installed version does not match the specified version.
+* `:remove` - Removes the specified app bundle if installed.
+
+*Attribute Parameters:*
+* `:name` - The name of the app.  This must match what Splunk considers the app name to be, typically it's root folder name.  (Required)
+* `:version` - The version of the app being installed.  This can be verified via `default/app.conf` in the app bundle if unknown.  (Required)
+* `:remote_file` - The remote location of the app bundle file.  (Required)
+* `:checksum` - Checksum of the app bundle file.  See the [remote_file resource](https://docs.chef.io/resource_remote_file.html) for details on `checksum` (Optional)
+
+*Usage:*
+This will install the Splunk Dashboard Examples app.  (This assumes 'artifact_repo' is a URL)
+
+```ruby
+splunk_shc_app 'simple_xml_examples' do
+  version '3.0'
+  remote_file "#{artifact_repo}/splunk-6x-dashboard-examples_30.tgz"
+  checksum 'ecf65fbde38befa66f2a88aa3d02903524cbdc57c40e0d439e5e4b3c7580c877'
+  action :install
+end
+```
+
+splunk_idx_app
+----------
+A default provider to install/upgrade/remove Splunk App bundles for distribution by a Indexer Cluster Master.
+
+*Actions:*
+* `:install` - Downloads the app bundle from the specified remote location extracts it to `$SPLUNK_HOME/etc/master-apps`.  If already installed, it will upgrade if the installed version does not match the specified version.
+* `:remove` - Removes the specified app bundle if installed.
+
+*Attribute Parameters:*
+* `:name` - The name of the app.  This must match what Splunk considers the app name to be, typically it's root folder name.  (Required)
+* `:version` - The version of the app being installed.  This can be verified via `default/app.conf` in the app bundle if unknown.  (Required)
+* `:remote_file` - The remote location of the app bundle file.  (Required)
+* `:checksum` - Checksum of the app bundle file.  See the [remote_file resource](https://docs.chef.io/resource_remote_file.html) for details on `checksum` (Optional)
+
+*Usage:*
+This will install the Splunk Dashboard Examples app.  (This assumes 'artifact_repo' is a URL)
+
+```ruby
+splunk_idx_app 'simple_xml_examples' do
+  version '3.0'
+  remote_file "#{artifact_repo}/splunk-6x-dashboard-examples_30.tgz"
+  checksum 'ecf65fbde38befa66f2a88aa3d02903524cbdc57c40e0d439e5e4b3c7580c877'
+  action :install
+end
+```
+
+DEPRECATED
+----------
 `app_install.rb`
 
 A default provider to install Splunk Apps.  This will install any required dependencies, install or upgrade the application, and move any local templates that are required.
@@ -168,7 +226,7 @@ Attribute Parameters:
 * `local_templates_directory` - The directory in which the local templates are stored.  (required if defining local_templates) - (templates/default/apps/NAME)
 * `remove_dir_on_upgrade` - Remove the app directory before extracting the new app.  (required)
 
-## Usage:
+Usage:
 
 This will install or upgrade the *nix app:
 

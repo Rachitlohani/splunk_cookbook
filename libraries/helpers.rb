@@ -4,14 +4,18 @@ module Splunk
       if node['splunk']['home']
         node['splunk']['home']
       else
-        "/opt/splunk#{node['splunk']['install_type'] == 'forwarder' ? 'forwarder' : ''}"
+        ::File.join('', 'opt', "splunk#{node['splunk']['install_type'] == 'forwarder' ? 'forwarder' : ''}")
       end
+    end
+
+    def splunk_cmd
+      ::File.join(splunk_home, 'bin', 'splunk')
     end
 
     def splunk_file(url)
       require 'pathname'
       require 'uri'
-      Pathname.new(URI.parse(url).path).basename.to_s
+      ::File.basename(URI.parse(url).path)
     end
 
     def splunk_user
@@ -34,5 +38,14 @@ module Splunk
         end
       prefix + splunk_package + suffix
     end
+
+    def shc_base_path
+      ::File.join(splunk_home, 'etc', 'shcluster', 'apps')
+    end
+
+    def idx_base_path
+      ::File.join(splunk_home, 'etc', 'master-apps')
+    end
+
   end
 end

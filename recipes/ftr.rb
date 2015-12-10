@@ -44,8 +44,9 @@ end
 
 ruby_block 'Fix Permissions on Splunk Install Directory' do
   block do
-    FileUtils.chown_R splunk_user, splunk_user, splunk_home
+    ::FileUtils.chown_R splunk_user, splunk_user, splunk_home
   end
+  only_if "test $(find #{splunk_home} \\! -user #{splunk_user} -print | wc -l) -ne 0"
 end
 
 execute 'Enable Boot Start' do
