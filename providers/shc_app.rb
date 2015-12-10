@@ -26,6 +26,7 @@ end
 
 action :install do
   unless current_resource.version == new_resource.version
+
     cached_package = ::File.join(
       Chef::Config[:file_cache_path],
       splunk_file(new_resource.remote_file)
