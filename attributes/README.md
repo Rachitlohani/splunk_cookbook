@@ -1,36 +1,6 @@
 Attributes
 ===========
 
-apps
-----
-* `node['splunk']['unix_app_file']` - The name of the unix app file.
-	- File location: files/default/apps
-* `node['splunk']['unix_app_version']` - The version number associated with this file.
-
-* `node['splunk']['pdf_server_file']` - The name of the pdf server app file.
-	- File location: files/default/apps
-* `node['splunk']['pdf_server_version']` - The version number associated with this file.
-
-* `node['splunk']['deployment_mon_file']` - The name of the deployment monitor app file.
-	- File location: files/default/apps
-* `node['splunk']['deployment_mon_version']` - The version number associated with this file.
-
-* `node['splunk']['splunk_sos_file]` - The name of the Splunk on Splunk app file.
-	- File location: files/default/apps
-* `node['splunk']['splunk_sos_version]` - The version number associated with this file.
-
-* `node['splunk']['sideview_utils_file]` - The name of the sideview utils app file.
-	- File location: files/default/apps
-* `node['splunk']['sideview_utils_version']` - The version number associated with this file.
-
-* `node['splunk']['pulse_app_file']` - The name of the Pulse for AWS Cloudwatch app file.
-	- File location: files/default/apps
-* `node['splunk']['pulse_app_version']` - The version number associated with this file.
-* `node['splunk']['boto_remote_location]` - The base URL for downloading the Python boto library
-* `node['splunk']['boto_verison]` - The version of boto to download
-* `node['splunk']['dateutil_remote_location]` - The base URL for downloading the Python dateutil library
-* `node['splunk']['dateutil_version]` - The version of python-dateutil to download
-
 default
 -------
 * `node['splunk']['cookbook_name']` - The name of the directory in which the cookbook runs.
@@ -88,6 +58,18 @@ default
 
 * `node['splunk']['max_searches_per_cpu']` - The max searches per cpu (limits.conf)
 
+Forwarding and Receiving
+------------------------
+* `node['splunk']['forwarding']['compressed']` - Indicate if data should be compressed when forwarding.  Only applicable when not using ssl.  Sets this on both forwarders and receivers.
+* `node['splunk']['forwarding']['indexers']` - For forwarders:  All valid targets the node should forward data to.  This is expected to be an array of addresses.  Examples: `['192.168.1.1','192.168.1.2']` or ['splunkindexer1.mydomain.com', 'splunkindxer2.mydomain.com']
+* `node['splunk']['forwarding']['port']` - Which port should be used for splunk forwarding.  Used in configuring both forwarders and receivers.
+* `node['splunk']['forwarding']['ssl']['enable']` - Enable SSL forwarding.  If none of the following attributes are set, uses the built-in self-signed certs.
+* `node['splunk']['forwarding']['ssl']['cacert']` - path to custom root CA cert.
+* `node['splunk']['forwarding']['ssl']['servercert']` - Path to custom server cert.
+* `node['splunk']['forwarding']['ssl']['password']` - certificate password
+* `node['splunk']['forwarding']['ssl']['requireClientCert']` - Indicates if an indexer should expect the client to authenticate using the SSL cert.  Default to false when using self-signed certs.
+* `node['splunk']['forwarding']['ssl']['sslVerifyServerCert']` - Indicates if a forwarder should check if the receiver is valid.  Defaults to 'false' when using self-signed certs.
+
 
 distributed_search
 ------------------
@@ -104,12 +86,6 @@ forwarder
 	- Folder Location: templates/forwarder/#{node['splunk']['forwarder_config_folder']}
 * `node['splunk']['limits_thruput']` - The max amount of bandwidth, in KBps, the forwarders will use when sending data.
 	- File Location: templates/forwarder/limits.conf.erb
-* `node['splunk']['ssl_forwarding']` - true/false to either enable or disable SSL forwarding.
-* `node['splunk']['ssl_forwarding_cacert']` - Name of the CA Cert
-	- File location: files/default/ssl/forwarders
-* `node['splunk']['ssl_forwarding_servercert']` - Name of the Server Cert
-	- File location: files/default/ssl/forwarders
-* `node['splunk']['ssl_forwarding_pass']` - Password for the certs
 
 indexes
 -------

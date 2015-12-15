@@ -60,9 +60,6 @@ default['splunk']['static_server_configs']     = ["web","transforms","limits","i
 # Dynamic Server Configs (Configs that change per environment)
 default['splunk']['dynamic_server_configs']    = ["inputs","props"]
 
-#configuration values for forwarders
-default['splunk']['receiver_port']             = "9997"
-
 # Set the role of your splunk server/dedicated search head
 default['splunk']['server_role']               = "splunk-server"
 # Needed for distributed search.  This is assigned to the indexers.
