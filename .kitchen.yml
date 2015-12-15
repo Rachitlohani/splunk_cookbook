@@ -12,6 +12,32 @@ platforms:
   - name: centos-7.1
 
 suites:
+  - name: base-server
+    driver:
+      vm_hostname: 'splunk-server.local'
+      network:
+        - ["forwarded_port", {guest: 8000, host: 8000, auto_correct: true}]
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+  - name: base-server-noroot
+    driver:
+      vm_hostname: 'splunk-server.local'
+      network:
+        - ["forwarded_port", {guest: 8000, host: 8000, auto_correct: true}]
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+      splunk:
+        run_as_root: false
+  - name: base-forwarder
+    driver:
+      vm_hostname: 'splunk-forwarder.local'
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+      splunk:
+        install_type: 'forwarder'
   - name: server
     driver:
       vm_hostname: 'splunk-server.local'

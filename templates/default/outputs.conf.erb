@@ -2,7 +2,7 @@
 defaultGroup = splunk_indexers
 
 [tcpout:splunk_indexers]
-server=<%= @indexers.collect { |i| i+":#{@port}"}.join(',')%>
+server = <%= @indexers.collect { |i| i+":#{@port}"}.join(',') %>
 <% if @ssl['enable'] -%>
 sslRootCAPath = <%= @ssl['cacert'] %>
 sslCertPath = <%= @ssl['servercert'] %>

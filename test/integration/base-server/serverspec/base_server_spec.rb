@@ -22,14 +22,10 @@ describe 'Splunk Server' do
   end
 
   describe process('splunkd') do
-    its(:user) { should match 'splunk' }
+    its(:user) { should match 'root' }
   end
 
-  describe port(8080) do
-    it { should be_listening }
-  end
-
-  describe port(9997) do
+  describe port(8000) do
     it { should be_listening }
   end
 
@@ -37,7 +33,7 @@ describe 'Splunk Server' do
     it { should exist }
     it { should be_file }
     its(:content) { should match 'SPLUNK_HOME=/opt/splunk' }
-    its(:content) { should match 'SPLUNK_OS_USER=splunk' }
+    its(:content) { should match 'SPLUNK_OS_USER=root' }
   end
 
   describe file('/opt/splunk/etc/.setup_admin_pwd') do
@@ -55,24 +51,6 @@ describe 'Splunk Server' do
   end
 
   describe file('/opt/splunk/etc/system/local/server.conf') do
-    its(:content) { should match 'serverName = splunk-server-noroot.local-splunk' }
-  end
-
-  describe file('/opt/splunk/etc/system/local/inputs.conf') do
-    its(:content) { should match 'host = splunk-server-noroot.local-splunk' }
-    its(:content) { should match '\[splunktcp:9997\]' }
-    its(:content) { should match 'compressed = true' }
-  end
-
-  %w(apache_http useragents).each do |dashboard|
-    describe file("/opt/splunk/etc/users/admin/search/local/data/ui/views/#{dashboard}.xml") do
-      it { should exist }
-    end
-  end
-
-  %w(web transforms limits indexes).each do |conf_file|
-    describe file("/opt/splunk/etc/system/local/#{conf_file}.conf") do
-      it { should exist }
-    end
+    its(:content) { should match 'serverName = splunk-server.local-splunk' }
   end
 end

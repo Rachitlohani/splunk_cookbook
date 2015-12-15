@@ -49,15 +49,4 @@ describe 'Splunk Forwarder' do
   describe file('/opt/splunkforwarder/etc/system/local/server.conf') do
     its(:content) { should match 'serverName = splunk-forwarder.local-splunk' }
   end
-
-  describe file('/opt/splunkforwarder/etc/system/local/outputs.conf') do
-    it { should exist }
-    it { should be_owned_by 'root' }
-    its(:content) { should match 'server = 192.168.33.10:9997' }
-    its(:content) { should match 'compressed = true' }
-  end
-
-  describe file('/opt/splunkforwarder/etc/system/local/limits.conf') do
-    it { should exist }
-  end
 end
