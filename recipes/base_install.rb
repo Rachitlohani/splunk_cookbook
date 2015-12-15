@@ -1,9 +1,9 @@
 #
 # Cookbook Name::splunk
-# Recipe::set_servername
+# Recipe::base_install
 #
-# Copyright 2011-2016, BBY Solutions, Inc.
-# Copyright 2011-2016, Opscode, Inc.
+# Copyright 2011-2012, BBY Solutions, Inc.
+# Copyright 2011-2012, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-Chef::Resource.send(:include, Splunk::Helpers)
 
-execute 'Set Splunk Servername' do
-  command "#{splunk_home}/bin/splunk set servername #{node['splunk']['hostname']} -auth #{node['splunk']['auth']}"
-  environment 'HOME' => splunk_home
-  sensitive true
-  not_if "#{splunk_home}/bin/splunk show servername -auth #{node['splunk']['auth']} | grep #{node['splunk']['hostname']}", environment: { 'HOME' => splunk_home }
-  notifies :restart, 'service[splunk]', :delayed
-end
+include_recipe 'splunk::system_user'
+include_recipe 'splunk::download_and_install'
+include_recipe 'splunk::ftr'
+include_recipe 'splunk::update_admin_auth'
+include_recipe 'splunk::set_servername'

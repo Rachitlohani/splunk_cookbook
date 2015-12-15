@@ -1,6 +1,6 @@
 #
 # Cookbook Name::splunk
-# Recipe::download_and_install
+# Recipe::ftr
 #
 # Copyright 2011-2016, BBY Solutions, Inc.
 # Copyright 2011-2016, Opscode, Inc.
@@ -21,7 +21,7 @@ Chef::Recipe.send(:include, Splunk::Helpers)
 Chef::Resource.send(:include, Splunk::Helpers)
 
 template "#{splunk_home}/etc/splunk-launch.conf" do
-  source 'server/splunk-launch.conf.erb'
+  source 'splunk-launch.conf.erb'
   mode '0640'
   owner splunk_user
   group splunk_user
@@ -50,7 +50,7 @@ ruby_block 'Fix Permissions on Splunk Install Directory' do
 end
 
 execute 'Enable Boot Start' do
-  command "#{splunk_home}/bin/splunk enable boot-start "\
+  command "#{splunk_cmd} enable boot-start "\
           "-user #{splunk_user} "\
           '--accept-license --answer-yes'
   only_if { ::File.exist? "#{splunk_home}/ftr" }

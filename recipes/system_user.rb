@@ -1,6 +1,6 @@
 #
 # Cookbook Name::splunk
-# Recipe::download_and_install
+# Recipe::system_user
 #
 # Copyright 2011-2016, BBY Solutions, Inc.
 # Copyright 2011-2016, Opscode, Inc.

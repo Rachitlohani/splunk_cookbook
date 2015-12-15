@@ -18,6 +18,24 @@ default['splunk']['home']                      = nil
 default['splunk']['server_home']               = '/opt/splunk'
 default['splunk']['db_directory']              = nil
 
+#Change the default admin password (Username::Password)
+default['splunk']['auth']                      = "admin:SomePassword123"
+
+# Forwarding and receiving
+default['splunk']['forwarding']['port']                          = "9997"
+default['splunk']['forwarding']['compressed']                    = true
+# If SSL is enabled, but no cert configurations are populated,
+# then splunk will use self-signed certs.
+default['splunk']['forwarding']['ssl']['enable']                 = false
+# To use your own certs, update the below settings
+default['splunk']['forwarding']['ssl']['cacert']                 = '$SPLUNK_HOME/etc/auth/cacert.pem'
+default['splunk']['forwarding']['ssl']['servercert']             = '$SPLUNK_HOME/etc/auth/server.pem'
+default['splunk']['forwarding']['ssl']['password']               = 'password'
+default['splunk']['forwarding']['ssl']['requireClientCert']      = false
+default['splunk']['forwarding']['ssl']['sslVerifyServerCert']    = false
+
+default['splunk']['forwarding']['indexers'] = nil
+
 #web config
 default['splunk']['web_server_port']           = "80" # Change to 443/other if you're doing ssl
 default['splunk']['root_endpoint']             = "/" # Web Endpoint
@@ -44,9 +62,6 @@ default['splunk']['dynamic_server_configs']    = ["inputs","props"]
 
 #configuration values for forwarders
 default['splunk']['receiver_port']             = "9997"
-
-#Change the default admin password (Username::Password)
-default['splunk']['auth']                      = "admin:SomePassword123"
 
 # Set the role of your splunk server/dedicated search head
 default['splunk']['server_role']               = "splunk-server"
