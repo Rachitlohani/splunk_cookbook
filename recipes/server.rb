@@ -20,11 +20,8 @@
 Chef::Recipe.send(:include, Splunk::Helpers)
 Chef::Resource.send(:include, Splunk::Helpers)
 
-include_recipe 'splunk::system_user'
-include_recipe 'splunk::download_and_install'
-include_recipe 'splunk::ftr'
-include_recipe 'splunk::update_admin_auth'
-include_recipe 'splunk::set_servername'
+include_recipe 'splunk::base_install'
+include_recipe 'splunk::enable_receiving'
 
 # True for both a Dedicated Search head for Distributed Search and for non-distributed search
 dedicated_search_head = true
@@ -84,59 +81,6 @@ if node['splunk']['use_ssl'] == true && dedicated_search_head == true
 
 end
 
-if node['splunk']['ssl_forwarding'] == true
-
-  # Create the SSL Cert Directory for the Forwarders
-  directory "#{splunk_home}/etc/auth/forwarders" do
-    owner splunk_user
-    group splunk_user
-    action :create
-    recursive true
-  end
-
-  # Copy over the SSL Certs
-  [node['splunk']['ssl_forwarding_cacert'],node['splunk']['ssl_forwarding_servercert']].each do |cert|
-    cookbook_file "#{splunk_home}/etc/auth/forwarders/#{cert}" do
-      source "ssl/forwarders/#{cert}"
-      owner splunk_user
-      group splunk_user
-      mode "0755"
-      notifies :restart, "service[splunk]"
-    end
-  end
-
-  # SSL passwords are encrypted when splunk reads the file.  We need to save the password.
-  # We need to save the password if it has changed so we don't keep restarting splunk.
-  # Splunk encrypted passwords always start with $1$
-  ruby_block "Saving Encrypted Password (inputs.conf/outputs.conf)" do
-    block do
-      inputsPass = `grep -m 1 "password = " #{splunk_home}/etc/system/local/inputs.conf | sed 's/password = //'`
-      if inputsPass.match(/^\$1\$/) && inputsPass != node['splunk']['inputsSSLPass']
-        node.normal['splunk']['inputsSSLPass'] = inputsPass
-        node.save
-      end
-
-      if node['splunk']['distributed_search'] == true && dedicated_search_head == true
-          outputsPass = `grep -m 1 "sslPassword = " #{splunk_home}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
-
-          if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
-            node.normal['splunk']['outputsSSLPass'] = outputsPass
-            node.save
-          end
-        end
-    end
-  end
-end
-
-# Enable receiving ports only if we are a standalone installation or a dedicated_indexer
-if dedicated_indexer == true || node['splunk']['distributed_search'] == false
-  execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do
-    command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
-    environment 'HOME' => splunk_home
-    not_if "grep splunktcp:#{node['splunk']['receiver_port']} #{splunk_home}/etc/system/local/inputs.conf"
-  end
-end
-
 if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   # Be sure to deploy the authentication template.
   node.normal['splunk']['static_server_configs'] << "authentication"
@@ -190,16 +134,6 @@ node['splunk']['static_server_configs'].each do |cfg|
       )
     notifies :restart, "service[splunk]"
   end
-end
-
-node['splunk']['dynamic_server_configs'].each do |cfg|
-  template "#{splunk_home}/etc/system/local/#{cfg}.conf" do
-    source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
-    owner splunk_user
-    group splunk_user
-    mode "0640"
-    notifies :restart, "service[splunk]"
-   end
 end
 
 directory "#{splunk_home}/etc/users/admin/search/local/data/ui/views" do
@@ -272,4 +206,3 @@ if node['splunk']['distributed_search'] == true
     end
   end
 end # End of distributed search
-

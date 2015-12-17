@@ -2,7 +2,6 @@ require 'serverspec'
 
 set :backend, :exec
 
-
 describe 'Splunk Server' do
   describe user('splunk') do
     it { should exist }
@@ -59,6 +58,12 @@ describe 'Splunk Server' do
     its(:content) { should match 'serverName = splunk-server.local-splunk' }
   end
 
+  describe file('/opt/splunk/etc/system/local/inputs.conf') do
+    its(:content) { should match 'host = splunk-server.local-splunk' }
+    its(:content) { should match '\[splunktcp:9997\]' }
+    its(:content) { should match 'compressed = true' }
+  end
+
   %w(apache_http useragents).each do |dashboard|
     describe file("/opt/splunk/etc/users/admin/search/local/data/ui/views/#{dashboard}.xml") do
       it { should exist }
@@ -66,12 +71,6 @@ describe 'Splunk Server' do
   end
 
   %w(web transforms limits indexes).each do |conf_file|
-    describe file("/opt/splunk/etc/system/local/#{conf_file}.conf") do
-      it { should exist }
-    end
-  end
-
-  %w(inputs props).each do |conf_file|
     describe file("/opt/splunk/etc/system/local/#{conf_file}.conf") do
       it { should exist }
     end

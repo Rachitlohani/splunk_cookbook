@@ -4,12 +4,40 @@ driver:
 
 provisioner:
   name: chef_zero
+  require_chef_omnibus: 12.3.0
 
 platforms:
   - name: ubuntu-12.04
-  - name: centos-6.5
+  - name: centos-6.7
+  - name: centos-7.1
 
 suites:
+  - name: base-server
+    driver:
+      vm_hostname: 'splunk-server.local'
+      network:
+        - ["forwarded_port", {guest: 8000, host: 8000, auto_correct: true}]
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+  - name: base-server-noroot
+    driver:
+      vm_hostname: 'splunk-server.local'
+      network:
+        - ["forwarded_port", {guest: 8000, host: 8000, auto_correct: true}]
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+      splunk:
+        run_as_root: false
+  - name: base-forwarder
+    driver:
+      vm_hostname: 'splunk-forwarder.local'
+    run_list:
+      - recipe[splunk::base_install]
+    attributes:
+      splunk:
+        install_type: 'forwarder'
   - name: server
     driver:
       vm_hostname: 'splunk-server.local'
@@ -41,3 +69,5 @@ suites:
     attributes:
       splunk:
         install_type: 'forwarder'
+        forwarding:
+          indexers: ['192.168.33.10']

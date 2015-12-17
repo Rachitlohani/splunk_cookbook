@@ -6,6 +6,37 @@ This Chef cookbook provides recipes for installing Splunk Server, Splunk Forward
 Changes
 =======
 
+* v0.2.2 - Forwarding/receiving revamp
+  - Created separate recipes to enable forwarding/receiving.  Supports the following configurations:
+    - Standard non-ssl forwarding
+    - SSL forwarding using built-in self-signed certs
+    - SSL forwarding using custom certs.
+      - This implementation expects the user to populate custom certs via their own recipes.
+  - Refer to [Splunk Documentation](http://docs.splunk.com/Documentation/Splunk/latest/Security/Aboutsecuringdatafromforwarders) for details on the various implementations.
+  - NOTE:  Some attributes have changed!  Please review the below before upgrading from a previous version.
+  - The following attributes are no longer used:
+    - `node['splunk']['ssl_forwarding']`
+      - replaced by `node['splunk']['forwarding']['ssl']['enable']`
+    - `node['splunk']['ssl_forwarding_cacert']`
+      - replaced by `node['splunk']['forwarding']['ssl']['cacert']`
+      - This attribute is now simply a path to the custom cert on the node.  It is assumed that cookbook consumers have populated the cert themselves.
+    - `node['splunk']['ssl_forwarding_servercert']`
+      - replaced by `node['splunk']['forwarding']['ssl']['servercert']`
+      - This attribute is now simply a path to the custom cert on the node.  It is assumed that cookbook consumers have populated the cert themselves.
+    - `node['splunk']['ssl_forwarding_pass']`
+      - Replaced by `node['splunk']['forwarding']['ssl']['password']`
+    - `node['splunk']['receiver_port']`
+      - Replaced by  `node['splunk']['forwarding']['port']`
+  - New attributes: (See attributes/README.md for details)
+    - `node['splunk']['forwarding']['compressed']`
+    - `node['splunk']['forwarding']['indexers']`
+    - `node['splunk']['forwarding']['port']`
+    - `node['splunk']['forwarding']['ssl']['enable']`
+    - `node['splunk']['forwarding']['ssl']['cacert']`
+    - `node['splunk']['forwarding']['ssl']['servercert']`
+    - `node['splunk']['forwarding']['ssl']['password']`
+    - `node['splunk']['forwarding']['ssl']['requireClientCert']`
+    - `node['splunk']['forwarding']['ssl']['sslVerifyServerCert']`
 * v0.2.1 - App Provider Cleanup
   - Wrote new providers for installing Splunk Apps.
     - Separate providers for direct install, and extraction to clustering deployment folders.
