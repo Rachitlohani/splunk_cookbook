@@ -10,7 +10,7 @@ describe 'Splunk Server' do
   describe file('/opt/splunk/etc/splunk-launch.conf') do
     it { should exist }
     it { should be_file }
-    its(:content) { should match 'SPLUNK_HOME=/opt/splunk' }
-    its(:content) { should match 'SPLUNK_OS_USER=splunk' }
+    its(:content) { should include 'SPLUNK_HOME=/opt/splunk' }
+    its(:content) { should include 'SPLUNK_OS_USER=splunk' }
   end
 end

@@ -28,8 +28,8 @@ describe 'Splunk Forwarder' do
   describe file('/opt/splunkforwarder/etc/splunk-launch.conf') do
     it { should exist }
     it { should be_file }
-    its(:content) { should match 'SPLUNK_HOME=/opt/splunkforwarder' }
-    its(:content) { should match 'SPLUNK_OS_USER=root' }
+    its(:content) { should include 'SPLUNK_HOME=/opt/splunkforwarder' }
+    its(:content) { should include 'SPLUNK_OS_USER=root' }
   end
 
   describe file('/opt/splunkforwarder/etc/.setup_admin_pwd') do
@@ -42,19 +42,19 @@ describe 'Splunk Forwarder' do
 
   describe file('/opt/splunkforwarder/etc/splunk.version') do
     it { should exist }
-    its(:content) { should match 'VERSION=6.3.1' }
-    its(:content) { should match 'BUILD=f3e41e4b37b2' }
+    its(:content) { should include 'VERSION=6.3.1' }
+    its(:content) { should include 'BUILD=f3e41e4b37b2' }
   end
 
   describe file('/opt/splunkforwarder/etc/system/local/server.conf') do
-    its(:content) { should match 'serverName = splunk-forwarder.local-splunk' }
+    its(:content) { should include 'serverName = splunk-forwarder.local-splunk' }
   end
 
   describe file('/opt/splunkforwarder/etc/system/local/outputs.conf') do
     it { should exist }
     it { should be_owned_by 'root' }
-    its(:content) { should match 'server = 192.168.33.10:9997' }
-    its(:content) { should match 'compressed = true' }
+    its(:content) { should include 'server = 192.168.33.10:9997' }
+    its(:content) { should include 'compressed = true' }
   end
 
   describe file('/opt/splunkforwarder/etc/system/local/limits.conf') do
