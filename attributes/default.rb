@@ -58,7 +58,7 @@ default['splunk']['server_config_folder']      = "prodlike"
 default['splunk']['static_server_configs']     = ["web","transforms","limits","indexes"]
 
 # Dynamic Server Configs (Configs that change per environment)
-default['splunk']['dynamic_server_configs']    = ["inputs","props"]
+default['splunk']['dynamic_server_configs']    = ["props"]
 
 # Set the role of your splunk server/dedicated search head
 default['splunk']['server_role']               = "splunk-server"

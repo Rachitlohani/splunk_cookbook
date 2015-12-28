@@ -1,0 +1,8 @@
+{
+  "id": "mock-indexer-2",
+  "role": "splunk-indexer",
+  "run_list": ["recipe[splunk::server]"],
+  "automatic": {
+    "ipaddress": "192.168.88.89"
+  }
+}

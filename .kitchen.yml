@@ -59,6 +59,18 @@ suites:
       splunk:
         run_as_root: false
         web_server_port: '8080'
+  - name: search-head
+    driver:
+      vm_hostname: 'splunk-searchhead.local'
+      network:
+        - ["private_network", {ip: "192.168.33.11"}]
+        - ["forwarded_port", {guest: 80, host: 8080, auto_correct: true}]
+    run_list:
+      - recipe[splunk::server]
+      - role[splunk-server]
+    attributes:
+      splunk:
+        distributed_search: true
   - name: forwarder
     driver:
       vm_hostname: 'splunk-forwarder.local'
