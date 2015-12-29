@@ -5,7 +5,7 @@ This Chef cookbook provides recipes for installing Splunk Server, Splunk Forward
 
 Changes
 =======
-
+* v0.2.3 - Bugfixes
 * v0.2.2 - Forwarding/receiving revamp
   - Created separate recipes to enable forwarding/receiving.  Supports the following configurations:
     - Standard non-ssl forwarding
