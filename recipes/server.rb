@@ -32,16 +32,20 @@ search_master = (node['splunk']['dedicated_search_master'] == node['ipaddress'])
 
 if node['splunk']['distributed_search'] == true
   if Chef::Config[:solo]
-    Chef::Log.warn("This recipe uses search. Chef Solo does not support search.")
+    Chef::Log.warn('This recipe uses search. Chef Solo does not support search.')
   else
     # Add the Distributed Search Template
-    node.normal['splunk']['static_server_configs'] << "distsearch"
+    node.normal['splunk']['static_server_configs'] =
+    node['splunk']['static_server_configs'] | ['distsearch']
 
     # We are a search head
     if node.run_list.include?("role[#{node['splunk']['server_role']}]")
-      search_indexers = search(:node, "role:#{node['splunk']['indexer_role']}")
-      # Add an outputs.conf.  Search Heads should not be doing any indexing
-      node.normal['splunk']['static_server_configs'] << "outputs"
+      node.default['splunk']['forwarding']['indexers'] =
+      search(
+        :node,
+        "role:#{node['splunk']['indexer_role']}"
+      ).collect { |n| n['ipaddress'] }
+      include_recipe 'splunk::enable_forwarding'
     else
       dedicated_search_head = false
     end
@@ -125,14 +129,24 @@ node['splunk']['static_server_configs'].each do |cfg|
     source "server/#{cfg}.conf.erb"
     owner splunk_user
     group splunk_user
-    mode "0640"
+    mode '0640'
     variables(
-        :search_heads => search_heads,
-        :search_indexers => search_indexers,
-        :dedicated_search_head => dedicated_search_head,
-        :dedicated_indexer => dedicated_indexer
-      )
-    notifies :restart, "service[splunk]"
+      search_heads: search_heads,
+      search_indexers: node['splunk']['forwarding']['indexers'],
+      dedicated_search_head: dedicated_search_head,
+      dedicated_indexer: dedicated_indexer
+    )
+    notifies :restart, 'service[splunk]', :delayed
+  end
+end
+
+node['splunk']['dynamic_server_configs'].each do |cfg|
+  template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
+    source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
+    owner splunk_user
+    group splunk_user
+    mode '0640'
+    notifies :restart, 'service[splunk]', :delayed
   end
 end
 
@@ -158,6 +172,8 @@ if node['splunk']['distributed_search'] == true
     execute "Linking license to search master" do
       command "#{splunk_cmd} edit licenser-localslave -master_uri 'https://#{node['splunk']['dedicated_search_master']}:8089' -auth #{node['splunk']['auth']}"
       environment 'HOME' => splunk_home
+      ignore_failure true
+      retries 3
       not_if "grep \"master_uri = https://#{node['splunk']['dedicated_search_master']}:8089\" #{splunk_home}/etc/system/local/server.conf"
     end
   end

@@ -1,0 +1,7 @@
+{
+  "id": "mock-search_head-1",
+  "run_list": ["recipe[splunk::server]","role[splunk-server]"],
+  "automatic": {
+    "ipaddress": "192.168.88.90"
+  }
+}
